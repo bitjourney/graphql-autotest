@@ -2,7 +2,7 @@ require_relative 'lib/graphql/autotest/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "graphql-autotest"
-  spec.version       = Graphql::Autotest::VERSION
+  spec.version       = GraphQL::Autotest::VERSION
   spec.authors       = ["Masataka Pocke Kuwabara"]
   spec.email         = ["kuwabara@pocke.me"]
 

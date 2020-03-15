@@ -328,6 +328,6 @@ class QueryGeneratorTest < Minitest::Test
 
   private def assert_query(expected, got)
     assert got.is_a? Array
-    assert_equal expected, got.map(&:to_query)
+    assert_equal expected, got.map { |f| f.to_query(root: false) }
   end
 end

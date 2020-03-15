@@ -3,7 +3,7 @@ module GraphQL
     class Field < Struct.new(:name, :children, :arguments, keyword_init: true)
       TYPE_NAME = Field.new(name: '__typename', children: nil)
 
-      def to_query(root: false)
+      def to_query(root: true)
         q = _to_query
         if root
           q = <<~GRAPHQL
@@ -27,7 +27,7 @@ module GraphQL
 
       private def children_to_query
         sorted_children.map do |child|
-          child.to_query
+          child.to_query(root: false)
         end.join("\n")
       end
 

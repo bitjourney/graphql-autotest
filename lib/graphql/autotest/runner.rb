@@ -27,7 +27,7 @@ module GraphQL
           skip_if: skip_if,
         )
         fields.each do |f|
-          q = f.to_query(root: true)
+          q = f.to_query
 
           result = if dry_run
                      {}

@@ -15,7 +15,7 @@ class QueryGeneratorTest < Minitest::Test
   end
 
   def test_simple_schema
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: SimpleSchema.to_document)
+    fields = generate(schema: SimpleSchema)
     assert_query [<<~GRAPHQL, '__typename'], fields
       latestNote {
         content
@@ -27,7 +27,7 @@ class QueryGeneratorTest < Minitest::Test
 
   def test_simple_schema_with_skip_if
     skip_if = -> (field, **) { field.name == 'content' }
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: SimpleSchema.to_document, skip_if: skip_if)
+    fields = generate(schema: SimpleSchema, skip_if: skip_if)
     assert_query [<<~GRAPHQL, '__typename'], fields
       latestNote {
         title
@@ -60,7 +60,7 @@ class QueryGeneratorTest < Minitest::Test
   end
 
   def test_nest_schema
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: NestSchema.to_document)
+    fields = generate(schema: NestSchema)
     assert_query [<<~GRAPHQL, '__typename'], fields
       latestNote {
         author {
@@ -81,7 +81,7 @@ class QueryGeneratorTest < Minitest::Test
   end
 
   def test_nest_schema_with_max_depth_1
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: NestSchema.to_document, max_depth: 1)
+    fields = generate(schema: NestSchema, max_depth: 1)
     assert_query [<<~GRAPHQL, '__typename'], fields
       latestNote {
         author {
@@ -96,7 +96,7 @@ class QueryGeneratorTest < Minitest::Test
   end
 
   def test_nest_schema_with_max_depth_2
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: NestSchema.to_document, max_depth: 2)
+    fields = generate(schema: NestSchema, max_depth: 2)
     assert_query [<<~GRAPHQL, '__typename'], fields
       latestNote {
         author {
@@ -129,7 +129,7 @@ class QueryGeneratorTest < Minitest::Test
   end
 
   def test_circular_schema
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: CircularSchema.to_document)
+    fields = generate(schema: CircularSchema)
     assert_query [<<~GRAPHQL, '__typename'], fields
       user {
         name
@@ -170,7 +170,7 @@ class QueryGeneratorTest < Minitest::Test
   end
 
   def test_circular_schema2
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: CircularSchema2.to_document)
+    fields = generate(schema: CircularSchema2)
     assert_query [<<~GRAPHQL, '__typename'], fields
       user {
         latestNote {
@@ -213,7 +213,7 @@ class QueryGeneratorTest < Minitest::Test
   end
 
   def test_arguments_schema1
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: ArgumentsSchema.to_document)
+    fields = generate(schema: ArgumentsSchema)
     assert_query [<<~GRAPHQL, '__typename'], fields
       usersWithOptionalFirst {
         name
@@ -242,6 +242,10 @@ class QueryGeneratorTest < Minitest::Test
         __typename
       }
     GRAPHQL2
+  end
+
+  private def generate(schema:, **kw)
+    GraphQL::Autotest::QueryGenerator.generate(schema: schema.to_document, **kw)
   end
 
   private def assert_query(expected, got)

@@ -1,18 +1,18 @@
 module GraphQL
   module Autotest
     class Runner
-      attr_reader :schema, :context, :fetch_arguments, :max_depth, :skip_if
-      private :schema, :context, :fetch_arguments, :max_depth, :skip_if
+      attr_reader :schema, :context, :arguments_fetcher, :max_depth, :skip_if
+      private :schema, :context, :arguments_fetcher, :max_depth, :skip_if
 
       # @param schema [Class<GraphQL::Schema>]
       # @param context [Hash] it passes to GraphQL::Schema.execute
-      # @param fetch_arguments [Proc] A proc receives a field and ancestors keyword argument, and it returns a Hash. The hash is passed to call the field.
+      # @param arguments_fetcher [Proc] A proc receives a field and ancestors keyword argument, and it returns a Hash. The hash is passed to call the field.
       # @param max_depth [Integer] Max query depth. It is recommended to specify to avoid too large query.
       # @param skip_if [Proc] A proc receives a field and ancestors keyword argument, and it returns a boolean. If it returns ture, the field is skipped.
-      def initialize(schema:, context:, fetch_arguments:, max_depth: Float::INFINITY, skip_if: -> (_field) { false })
+      def initialize(schema:, context:, arguments_fetcher: ArgumentsFetcher::DEFAULT, max_depth: Float::INFINITY, skip_if: -> (_field) { false })
         @schema = schema
         @context = context
-        @fetch_arguments = fetch_arguments
+        @arguments_fetcher = arguments_fetcher
         @max_depth = max_depth
         @skip_if = skip_if
       end
@@ -54,7 +54,7 @@ module GraphQL
         type_def.fields.map do |name, f|
           next if skip_if.call(f, ancestors: ancestors)
 
-          arguments = fetch_arguments.call(f, ancestors: ancestors)
+          arguments = arguments_fetcher.call(f, ancestors: ancestors)
           next unless arguments
           already_called_key = [type_def, name]
           next if called_fields.include?(already_called_key) && name != 'id'

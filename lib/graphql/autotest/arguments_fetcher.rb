@@ -1,9 +1,6 @@
 module GraphQL
   module Autotest
     module ArgumentsFetcher
-      EMPTY = -> (field, ancestors:) { field.arguments.empty? && {} }
-      NO_REQUIRED = -> (field, ancestors:) { field.arguments.none? { |_k, v| v.type.non_null? } && {} }
-
       def self.combine(*strategy)
         -> (*args, **kwargs) do
           strategy.find do |s|
@@ -12,6 +9,10 @@ module GraphQL
           end
         end
       end
+
+      EMPTY = -> (field, ancestors:) { field.arguments.empty? && {} }
+      NO_REQUIRED = -> (field, ancestors:) { field.arguments.none? { |_k, v| v.type.non_null? } && {} }
+      DEFAULT = combine(EMPTY, NO_REQUIRED)
     end
   end
 end

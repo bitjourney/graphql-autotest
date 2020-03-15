@@ -4,6 +4,14 @@ module GraphQL
       attr_reader :document, :arguments_fetcher, :max_depth, :skip_if
       private :document, :arguments_fetcher, :max_depth, :skip_if
 
+      def self.from_file(path: nil, content: nil, **kw)
+        raise ArgumentError, "path or content is required" if !path && !content
+
+        content ||= File.read(path)
+        document = GraphQL.parse(content)
+        generate(document: document, **kw)
+      end
+
       # See Runner#initialize for arguments documentation.
       def self.generate(document:, arguments_fetcher: ArgumentsFetcher::DEFAULT, max_depth: Float::INFINITY, skip_if: -> (_field, **) { false })
         self.new(document: document, arguments_fetcher: arguments_fetcher, max_depth: max_depth, skip_if: skip_if).generate

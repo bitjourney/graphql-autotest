@@ -3,7 +3,19 @@ module GraphQL
     class Field < Struct.new(:name, :children, :arguments, keyword_init: true)
       TYPE_NAME = Field.new(name: '__typename', children: nil)
 
-      def to_query
+      def to_query(root: false)
+        q = _to_query
+        if root
+          q = <<~GRAPHQL
+          {
+          #{indent(q, 2)}
+          }
+          GRAPHQL
+        end
+        q
+      end
+
+      private def _to_query
         return name unless children
 
         <<~GRAPHQL

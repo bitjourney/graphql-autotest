@@ -27,12 +27,7 @@ module GraphQL
           skip_if: skip_if,
         )
         fields.each do |f|
-          q = f.to_query
-          q = <<~GRAPHQL
-            {
-            #{q.indent(2)}
-            }
-          GRAPHQL
+          q = f.to_query(root: true)
 
           result = if dry_run
                      {}

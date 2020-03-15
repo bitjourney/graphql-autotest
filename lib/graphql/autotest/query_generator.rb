@@ -36,7 +36,7 @@ module GraphQL
 
           called_fields << already_called_key
 
-          field_type = unwrap f.type
+          field_type = Util.unwrap f.type
           field_type_def = type_definition(field_type.name)
 
           case field_type_def
@@ -62,12 +62,6 @@ module GraphQL
 
       private def type_definition(name)
         document.definitions.find { |f| f.name == name }
-      end
-
-      private def unwrap(type)
-        return type unless type.respond_to?(:of_type)
-
-        unwrap(type.of_type)
       end
     end
   end

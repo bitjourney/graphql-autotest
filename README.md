@@ -21,6 +21,8 @@ Or install it yourself as:
 ## Usage
 
 ```ruby
+require 'graphql/autotest'
+
 class YourSchema < GraphQL::Schema
 end
 

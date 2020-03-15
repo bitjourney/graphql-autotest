@@ -46,6 +46,12 @@ module GraphQL
         report
       end
 
+      def report!(dry_run: false)
+        report(dry_run: dry_run).tap do |r|
+          r.raise_if_error!
+        end
+      end
+
       # It returns testable fields as a tree.
       # "Testable" means that it can fill the arguments.
       private def testable_fields(type_def, called_fields: Set.new, depth: 0, ancestors: [])

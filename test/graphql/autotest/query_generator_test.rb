@@ -37,6 +37,17 @@ class QueryGeneratorTest < Minitest::Test
     GRAPHQL
   end
 
+  def test_simple_schema_with_skip_if
+    skip_if = -> (field, **) { field.name == 'content' }
+    fields = GraphQL::Autotest::QueryGenerator.generate(schema: SimpleSchema, skip_if: skip_if)
+    assert_query [<<~GRAPHQL, '__typename'], fields
+      latestNote {
+        title
+        __typename
+      }
+    GRAPHQL
+  end
+
   class NestSchema < GraphQL::Schema
     class AvatarType < GraphQL::Schema::Object
       field :data, String, null: false
@@ -192,6 +203,56 @@ class QueryGeneratorTest < Minitest::Test
         __typename
       }
     GRAPHQL
+  end
+
+  class ArgumentsSchema < GraphQL::Schema
+    class UserType < GraphQL::Schema::Object
+      field :name, String, null: false
+    end
+
+    class QueryType < GraphQL::Schema::Object
+      field :users_with_optional_first, [UserType], null: true do
+        argument :first, Integer, required: false
+      end
+
+      field :users_with_required_first, [UserType], null: true do
+        argument :first, Integer, required: true
+      end
+    end
+
+    query QueryType
+  end
+
+  def test_arguments_schema1
+    fields = GraphQL::Autotest::QueryGenerator.generate(schema: ArgumentsSchema)
+    assert_query [<<~GRAPHQL, '__typename'], fields
+      usersWithOptionalFirst {
+        name
+        __typename
+      }
+    GRAPHQL
+  end
+
+  def test_arguments_schema2
+    fetcher = GraphQL::Autotest::ArgumentsFetcher.combine(
+      GraphQL::Autotest::ArgumentsFetcher::DEFAULT,
+      -> (field, **) { field.arguments.keys == ['first'] && { first: 4} }
+    )
+    fields = GraphQL::Autotest::QueryGenerator.generate(
+      schema: ArgumentsSchema,
+      arguments_fetcher: fetcher,
+    )
+    assert_query [<<~GRAPHQL, <<~GRAPHQL2, '__typename'], fields
+      usersWithOptionalFirst {
+        name
+        __typename
+      }
+    GRAPHQL
+      usersWithRequiredFirst(first: 4) {
+        name
+        __typename
+      }
+    GRAPHQL2
   end
 
   private def assert_query(expected, got)

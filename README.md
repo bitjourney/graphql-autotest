@@ -1,8 +1,6 @@
 # GraphQL::Autotest
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/graphql/autotest`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+GraphQL::Autotest tests your GraphQL API with auto-generated queries.
 
 ## Installation
 
@@ -22,7 +20,25 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+class YourSchema < GraphQL::Schema
+end
+
+runner = GraphQL::Autotest::Runner.new(
+  schema: YourSchema,
+  # The context that is passed to GraphQL::Schema.execute
+  context: { current_user: User.first },
+)
+
+# * Generate queries from YourSchema
+# * Then execute the queries
+# * Raise an error if the results contain error(s)
+runner.report!
+```
+
+### Configuration
+
+TODO
 
 ## Development
 
@@ -32,5 +48,5 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/pocke/graphql-autotest.
+Bug reports and pull requests are welcome on GitHub at https://github.com/bitjourney/graphql-autotest.
 

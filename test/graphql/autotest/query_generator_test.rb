@@ -227,8 +227,8 @@ class QueryGeneratorTest < Minitest::Test
       GraphQL::Autotest::ArgumentsFetcher::DEFAULT,
       -> (field, **) { field.arguments.map(&:name) == ['first'] && { first: 4} }
     )
-    fields = GraphQL::Autotest::QueryGenerator.generate(
-      schema: ArgumentsSchema.to_document,
+    fields = generate(
+      schema: ArgumentsSchema,
       arguments_fetcher: fetcher,
     )
     assert_query [<<~GRAPHQL, <<~GRAPHQL2, '__typename'], fields
@@ -245,7 +245,7 @@ class QueryGeneratorTest < Minitest::Test
   end
 
   private def generate(schema:, **kw)
-    GraphQL::Autotest::QueryGenerator.generate(schema: schema.to_document, **kw)
+    GraphQL::Autotest::QueryGenerator.generate(document: schema.to_document, **kw)
   end
 
   private def assert_query(expected, got)

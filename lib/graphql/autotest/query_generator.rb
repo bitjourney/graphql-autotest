@@ -1,16 +1,16 @@
 module GraphQL
   module Autotest
     class QueryGenerator
-      attr_reader :schema, :arguments_fetcher, :max_depth, :skip_if
-      private :schema, :arguments_fetcher, :max_depth, :skip_if
+      attr_reader :document, :arguments_fetcher, :max_depth, :skip_if
+      private :document, :arguments_fetcher, :max_depth, :skip_if
 
       # See Runner#initialize for arguments documentation.
-      def self.generate(schema:, arguments_fetcher: ArgumentsFetcher::DEFAULT, max_depth: Float::INFINITY, skip_if: -> (_field, **) { false })
-        self.new(schema: schema, arguments_fetcher: arguments_fetcher, max_depth: max_depth, skip_if: skip_if).generate
+      def self.generate(document:, arguments_fetcher: ArgumentsFetcher::DEFAULT, max_depth: Float::INFINITY, skip_if: -> (_field, **) { false })
+        self.new(document: document, arguments_fetcher: arguments_fetcher, max_depth: max_depth, skip_if: skip_if).generate
       end
 
-      def initialize(schema:, arguments_fetcher:, max_depth: , skip_if:)
-        @schema = schema
+      def initialize(document:, arguments_fetcher:, max_depth: , skip_if:)
+        @document = document
         @arguments_fetcher = arguments_fetcher
         @max_depth = max_depth
         @skip_if = skip_if
@@ -61,7 +61,7 @@ module GraphQL
       end
 
       private def type_definition(name)
-        schema.definitions.find { |f| f.name == name }
+        document.definitions.find { |f| f.name == name }
       end
 
       private def unwrap(type)

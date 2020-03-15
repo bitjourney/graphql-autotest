@@ -36,6 +36,33 @@ class QueryGeneratorTest < Minitest::Test
     GRAPHQL
   end
 
+  class ScalarTypeSchema < GraphQL::Schema
+    class DateTime < GraphQL::Schema::Scalar
+    end
+
+    class NoteType < GraphQL::Schema::Object
+      field :title, String, null: false
+      field :updated_at, DateTime, null: false
+    end
+
+    class QueryType < GraphQL::Schema::Object
+      field :latest_note, NoteType, null: true
+    end
+
+    query QueryType
+  end
+
+  def test_scalar_type_schema
+    fields = generate(schema: ScalarTypeSchema)
+    assert_query [<<~GRAPHQL, '__typename'], fields
+      latestNote {
+        title
+        updatedAt
+        __typename
+      }
+    GRAPHQL
+  end
+
   class NestSchema < GraphQL::Schema
     class AvatarType < GraphQL::Schema::Object
       field :data, String, null: false

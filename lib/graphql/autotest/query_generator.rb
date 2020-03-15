@@ -40,7 +40,7 @@ module GraphQL
           field_type_def = type_definition(field_type.name)
 
           case field_type_def
-          when nil, GraphQL::Language::Nodes::EnumTypeDefinition
+          when nil, GraphQL::Language::Nodes::EnumTypeDefinition, GraphQL::Language::Nodes::ScalarTypeDefinition
             Field.new(name: f.name, children: nil, arguments: arguments)
           when GraphQL::Language::Nodes::UnionTypeDefinition
             possible_types = field_type_def.types.map do |t|

@@ -11,7 +11,7 @@ module GraphQL
       end
 
       EMPTY = -> (field, ancestors:) { field.arguments.empty? && {} }
-      NO_REQUIRED = -> (field, ancestors:) { field.arguments.none? { |_k, v| v.type.non_null? } && {} }
+      NO_REQUIRED = -> (field, ancestors:) { field.arguments.none? { |arg| Util.non_null?(arg.type) } && {} }
       DEFAULT = combine(EMPTY, NO_REQUIRED)
     end
   end

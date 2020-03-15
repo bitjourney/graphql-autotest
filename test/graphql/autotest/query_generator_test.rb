@@ -1,18 +1,6 @@
 require 'test_helper'
 
 class QueryGeneratorTest < Minitest::Test
-  class EmptySchema < GraphQL::Schema
-    class QueryType < GraphQL::Schema::Object
-    end
-
-    query QueryType
-  end
-
-  def test_empty_schema
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: EmptySchema)
-    assert_query ['__typename'], fields
-  end
-
   class SimpleSchema < GraphQL::Schema
     class NoteType < GraphQL::Schema::Object
       field :title, String, null: false
@@ -27,11 +15,11 @@ class QueryGeneratorTest < Minitest::Test
   end
 
   def test_simple_schema
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: SimpleSchema)
+    fields = generate(schema: SimpleSchema)
     assert_query [<<~GRAPHQL, '__typename'], fields
       latestNote {
-        title
         content
+        title
         __typename
       }
     GRAPHQL
@@ -39,10 +27,88 @@ class QueryGeneratorTest < Minitest::Test
 
   def test_simple_schema_with_skip_if
     skip_if = -> (field, **) { field.name == 'content' }
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: SimpleSchema, skip_if: skip_if)
+    fields = generate(schema: SimpleSchema, skip_if: skip_if)
     assert_query [<<~GRAPHQL, '__typename'], fields
       latestNote {
         title
+        __typename
+      }
+    GRAPHQL
+  end
+
+  class ScalarTypeSchema < GraphQL::Schema
+    class DateTime < GraphQL::Schema::Scalar
+    end
+
+    class NoteType < GraphQL::Schema::Object
+      field :title, String, null: false
+      field :updated_at, DateTime, null: false
+    end
+
+    class QueryType < GraphQL::Schema::Object
+      field :latest_note, NoteType, null: true
+    end
+
+    query QueryType
+  end
+
+  def test_scalar_type_schema
+    fields = generate(schema: ScalarTypeSchema)
+    assert_query [<<~GRAPHQL, '__typename'], fields
+      latestNote {
+        title
+        updatedAt
+        __typename
+      }
+    GRAPHQL
+  end
+
+  class UnionTypeSchema < GraphQL::Schema
+    class NoteType < GraphQL::Schema::Object
+      field :title, String, null: false
+      field :content, String, null: false
+    end
+
+    class CommentType < GraphQL::Schema::Object
+      field :content, String, null: false
+    end
+
+    class LikableType < GraphQL::Schema::Union
+      possible_types NoteType, CommentType
+    end
+
+    class LikeType < GraphQL::Schema::Object
+      field :target, LikableType, null: false
+      field :by, String, null: false
+    end
+
+    class QueryType < GraphQL::Schema::Object
+      field :latest_like, LikeType, null: true
+    end
+
+    query QueryType
+  end
+
+  def test_union_type_schema
+    fields = generate(schema: UnionTypeSchema)
+    assert_query [<<~GRAPHQL, '__typename'], fields
+      latestLike {
+        by
+        target {
+          ... on Comment {
+            content
+            __typename
+          }
+
+          ... on Note {
+            content
+            title
+            __typename
+          }
+
+          __typename
+        }
+
         __typename
       }
     GRAPHQL
@@ -72,56 +138,56 @@ class QueryGeneratorTest < Minitest::Test
   end
 
   def test_nest_schema
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: NestSchema)
+    fields = generate(schema: NestSchema)
     assert_query [<<~GRAPHQL, '__typename'], fields
       latestNote {
-        title
-        content
         author {
-          name
           avatar {
             data
             __typename
           }
 
+          name
           __typename
         }
 
+        content
+        title
         __typename
       }
     GRAPHQL
   end
 
   def test_nest_schema_with_max_depth_1
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: NestSchema, max_depth: 1)
+    fields = generate(schema: NestSchema, max_depth: 1)
     assert_query [<<~GRAPHQL, '__typename'], fields
       latestNote {
-        title
-        content
         author {
           __typename
         }
 
+        content
+        title
         __typename
       }
     GRAPHQL
   end
 
   def test_nest_schema_with_max_depth_2
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: NestSchema, max_depth: 2)
+    fields = generate(schema: NestSchema, max_depth: 2)
     assert_query [<<~GRAPHQL, '__typename'], fields
       latestNote {
-        title
-        content
         author {
-          name
           avatar {
             __typename
           }
 
+          name
           __typename
         }
 
+        content
+        title
         __typename
       }
     GRAPHQL
@@ -141,7 +207,7 @@ class QueryGeneratorTest < Minitest::Test
   end
 
   def test_circular_schema
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: CircularSchema)
+    fields = generate(schema: CircularSchema)
     assert_query [<<~GRAPHQL, '__typename'], fields
       user {
         name
@@ -182,24 +248,25 @@ class QueryGeneratorTest < Minitest::Test
   end
 
   def test_circular_schema2
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: CircularSchema2)
+    fields = generate(schema: CircularSchema2)
     assert_query [<<~GRAPHQL, '__typename'], fields
       user {
-        name
         latestNote {
-          title
           author {
-            name
             latestNote {
+              title
               __typename
             }
 
+            name
             __typename
           }
 
+          title
           __typename
         }
 
+        name
         __typename
       }
     GRAPHQL
@@ -224,7 +291,7 @@ class QueryGeneratorTest < Minitest::Test
   end
 
   def test_arguments_schema1
-    fields = GraphQL::Autotest::QueryGenerator.generate(schema: ArgumentsSchema)
+    fields = generate(schema: ArgumentsSchema)
     assert_query [<<~GRAPHQL, '__typename'], fields
       usersWithOptionalFirst {
         name
@@ -236,9 +303,9 @@ class QueryGeneratorTest < Minitest::Test
   def test_arguments_schema2
     fetcher = GraphQL::Autotest::ArgumentsFetcher.combine(
       GraphQL::Autotest::ArgumentsFetcher::DEFAULT,
-      -> (field, **) { field.arguments.keys == ['first'] && { first: 4} }
+      -> (field, **) { field.arguments.map(&:name) == ['first'] && { first: 4} }
     )
-    fields = GraphQL::Autotest::QueryGenerator.generate(
+    fields = generate(
       schema: ArgumentsSchema,
       arguments_fetcher: fetcher,
     )
@@ -253,6 +320,10 @@ class QueryGeneratorTest < Minitest::Test
         __typename
       }
     GRAPHQL2
+  end
+
+  private def generate(schema:, **kw)
+    GraphQL::Autotest::QueryGenerator.generate(document: schema.to_document, **kw)
   end
 
   private def assert_query(expected, got)

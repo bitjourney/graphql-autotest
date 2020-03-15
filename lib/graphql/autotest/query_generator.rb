@@ -13,7 +13,7 @@ module GraphQL
       end
 
       # See Runner#initialize for arguments documentation.
-      def self.generate(document:, arguments_fetcher: ArgumentsFetcher::DEFAULT, max_depth: Float::INFINITY, skip_if: -> (_field, **) { false })
+      def self.generate(document:, arguments_fetcher: ArgumentsFetcher::DEFAULT, max_depth: 0, skip_if: -> (_field, **) { false })
         self.new(document: document, arguments_fetcher: arguments_fetcher, max_depth: max_depth, skip_if: skip_if).generate
       end
 

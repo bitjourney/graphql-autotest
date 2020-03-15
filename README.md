@@ -20,6 +20,8 @@ Or install it yourself as:
 
 ## Usage
 
+### Generate queries and execute them
+
 ```ruby
 require 'graphql/autotest'
 
@@ -38,9 +40,85 @@ runner = GraphQL::Autotest::Runner.new(
 runner.report!
 ```
 
+### Generate queries from `GraphQL::Schema` (not execute)
+
+```ruby
+require 'graphql/autotest'
+
+class YourSchema < GraphQL::Schema
+end
+
+fields = GraphQL::Autotest::QueryGenerator.generate(document: YourSchema.to_document)
+
+# Print all generated queries
+fields.each do |field|
+  puts field.to_query
+end
+```
+
+### Generate queries from file (not execute)
+
+It is useful for non graphql-ruby user.
+
+```ruby
+require 'graphql/autotest'
+
+fields = GraphQL::Autotest::QueryGenerator.from_file(path: 'path/to/definition.graphql')
+
+# Print all generated queries
+fields.each do |field|
+  puts field.to_query
+end
+```
+
 ### Configuration
 
-TODO
+`GraphQL::Autotest::Runner.new`, `GraphQL::Autotest::QueryGenerator.generate` and `GraphQL::Autotest::QueryGenerator.from_file` receives the following arguments to configure how to generates queries.
+
+* `arguments_fetcher`
+  * A proc to fill arguments of the received field.
+  * default: `GraphQL::Autotest::ArgumentsFetcher::DEFAULT`, that allows empty arguments, and arguments that has no required argument.
+  * You need to specify the proc if you need to test field that has required arguments.
+* `max_depth`
+  * Max query depth.
+  * default: 10
+* `skip_if`
+  * A proc to specify field that you'd like to skip to generate query.
+  * default: skip nothing
+
+For example:
+
+```ruby
+require 'graphql/autotest'
+
+class YourSchema < GraphQL::Schema
+end
+
+# Fill `first` argument to reduce result size.
+fill_first = proc do |field|
+  field.arguments.any? { |arg| arg.name == 'first' } && { first: 5 }
+end
+
+# Skip a sensitive field
+skip_if = proc do |field|
+  field.name == 'sensitiveField'
+end
+
+fields = GraphQL::Autotest::QueryGenerator.generate(
+  document: YourSchema.to_document,
+  arguments_fetcher: GraphQL::Autotest::ArgumentsFetcher.combine(
+    fill_first,
+    GraphQL::Autotest::ArgumentsFetcher::DEFAULT,
+  ),
+  max_depth: 5,
+  skip_if: skip_if,
+)
+
+# Print all generated queries
+fields.each do |field|
+  puts field.to_query
+end
+```
 
 ## Development
 

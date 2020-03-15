@@ -21,7 +21,6 @@ module GraphQL
         report = Report.new(executions: [])
 
         fields = QueryGenerator.generate(
-          # FIXME
           document: schema.to_document,
           arguments_fetcher: arguments_fetcher,
           max_depth: max_depth,

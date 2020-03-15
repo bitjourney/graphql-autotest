@@ -63,6 +63,57 @@ class QueryGeneratorTest < Minitest::Test
     GRAPHQL
   end
 
+  class UnionTypeSchema < GraphQL::Schema
+    class NoteType < GraphQL::Schema::Object
+      field :title, String, null: false
+      field :content, String, null: false
+    end
+
+    class CommentType < GraphQL::Schema::Object
+      field :content, String, null: false
+    end
+
+    class LikableType < GraphQL::Schema::Union
+      possible_types NoteType, CommentType
+    end
+
+    class LikeType < GraphQL::Schema::Object
+      field :target, LikableType, null: false
+      field :by, String, null: false
+    end
+
+    class QueryType < GraphQL::Schema::Object
+      field :latest_like, LikeType, null: true
+    end
+
+    query QueryType
+  end
+
+  def test_union_type_schema
+    fields = generate(schema: UnionTypeSchema)
+    assert_query [<<~GRAPHQL, '__typename'], fields
+      latestLike {
+        by
+        target {
+          ... on Comment {
+            content
+            __typename
+          }
+
+          ... on Note {
+            content
+            title
+            __typename
+          }
+
+          __typename
+        }
+
+        __typename
+      }
+    GRAPHQL
+  end
+
   class NestSchema < GraphQL::Schema
     class AvatarType < GraphQL::Schema::Object
       field :data, String, null: false

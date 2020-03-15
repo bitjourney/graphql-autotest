@@ -44,8 +44,9 @@ module GraphQL
             Field.new(name: f.name, children: nil, arguments: arguments)
           when GraphQL::Language::Nodes::UnionTypeDefinition
             possible_types = field_type_def.types.map do |t|
-              children = testable_fields(t, called_fields: called_fields.dup, depth: depth + 1, ancestors: [f, *ancestors])
-              Field.new(name: "... on #{t}", children: children)
+              t_def = type_definition(t.name)
+              children = testable_fields(t_def, called_fields: called_fields.dup, depth: depth + 1, ancestors: [f, *ancestors])
+              Field.new(name: "... on #{t.name}", children: children)
             end
             Field.new(name: f.name, children: possible_types + [Field::TYPE_NAME], arguments: arguments)
           else

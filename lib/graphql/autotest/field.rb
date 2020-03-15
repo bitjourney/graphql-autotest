@@ -14,7 +14,7 @@ module GraphQL
       end
 
       private def children_to_query
-        children.map do |child|
+        sorted_children.map do |child|
           child.to_query
         end.join("\n")
       end
@@ -37,6 +37,21 @@ module GraphQL
             " " * n + line
           end
         end.join("\n")
+      end
+
+      private def sorted_children
+        children.sort_by { |child| child.sort_key }
+      end
+
+      protected def sort_key
+        [
+          # '__typename' is at the last
+          name == '__typename' ? 1 : 0,
+          # no-children field is at the first
+          children ? 1 : 0,
+          # alphabetical order
+          name,
+        ]
       end
     end
   end

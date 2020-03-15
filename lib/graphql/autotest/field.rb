@@ -21,6 +21,7 @@ module GraphQL
 
       def arguments_to_query
         return unless arguments
+        return if arguments.empty?
 
         inner = arguments.map do |k, v|
           "#{k}: #{v}"

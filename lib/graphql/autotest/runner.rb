@@ -9,7 +9,7 @@ module GraphQL
       # @param arguments_fetcher [Proc] A proc receives a field and ancestors keyword argument, and it returns a Hash. The hash is passed to call the field.
       # @param max_depth [Integer] Max query depth. It is recommended to specify to avoid too large query.
       # @param skip_if [Proc] A proc receives a field and ancestors keyword argument, and it returns a boolean. If it returns ture, the field is skipped.
-      def initialize(schema:, context:, arguments_fetcher: ArgumentsFetcher::DEFAULT, max_depth: Float::INFINITY, skip_if: -> (_field) { false })
+      def initialize(schema:, context:, arguments_fetcher: ArgumentsFetcher::DEFAULT, max_depth: Float::INFINITY, skip_if: -> (_field, **) { false })
         @schema = schema
         @context = context
         @arguments_fetcher = arguments_fetcher

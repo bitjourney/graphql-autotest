@@ -4,7 +4,8 @@ module GraphQL
       attr_reader :schema, :arguments_fetcher, :max_depth, :skip_if
       private :schema, :arguments_fetcher, :max_depth, :skip_if
 
-      def self.generate(schema:, arguments_fetcher:, max_depth:, skip_if:)
+      # See Runner#initialize for arguments documentation.
+      def self.generate(schema:, arguments_fetcher: ArgumentsFetcher::DEFAULT, max_depth: Float::INFINITY, skip_if: -> (_field, **) { false })
         self.new(schema: schema, arguments_fetcher: arguments_fetcher, max_depth: max_depth, skip_if: skip_if).generate
       end
 

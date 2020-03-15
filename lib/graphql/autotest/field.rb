@@ -8,18 +8,18 @@ module GraphQL
 
         <<~GRAPHQL
           #{name}#{arguments_to_query} {
-          #{children_to_query.indent(2)}
+          #{indent(children_to_query, 2)}
           }
         GRAPHQL
       end
 
-      def children_to_query
+      private def children_to_query
         children.map do |child|
           child.to_query
         end.join("\n")
       end
 
-      def arguments_to_query
+      private def arguments_to_query
         return unless arguments
         return if arguments.empty?
 
@@ -27,6 +27,16 @@ module GraphQL
           "#{k}: #{v}"
         end.join(', ')
         "(#{inner})"
+      end
+
+      private def indent(str, n)
+        str.lines(chomp: true).map do |line|
+          if line.empty?
+            ""
+          else
+            " " * n + line
+          end
+        end.join("\n")
       end
     end
   end

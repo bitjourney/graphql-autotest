@@ -141,18 +141,18 @@ class QueryGeneratorTest < Minitest::Test
     fields = generate(schema: NestSchema)
     assert_query [<<~GRAPHQL, '__typename'], fields
       latestNote {
+        content
+        title
         author {
+          name
           avatar {
             data
             __typename
           }
 
-          name
           __typename
         }
 
-        content
-        title
         __typename
       }
     GRAPHQL
@@ -162,12 +162,12 @@ class QueryGeneratorTest < Minitest::Test
     fields = generate(schema: NestSchema, max_depth: 1)
     assert_query [<<~GRAPHQL, '__typename'], fields
       latestNote {
+        content
+        title
         author {
           __typename
         }
 
-        content
-        title
         __typename
       }
     GRAPHQL
@@ -177,17 +177,17 @@ class QueryGeneratorTest < Minitest::Test
     fields = generate(schema: NestSchema, max_depth: 2)
     assert_query [<<~GRAPHQL, '__typename'], fields
       latestNote {
+        content
+        title
         author {
+          name
           avatar {
             __typename
           }
 
-          name
           __typename
         }
 
-        content
-        title
         __typename
       }
     GRAPHQL
@@ -251,22 +251,22 @@ class QueryGeneratorTest < Minitest::Test
     fields = generate(schema: CircularSchema2)
     assert_query [<<~GRAPHQL, '__typename'], fields
       user {
+        name
         latestNote {
+          title
           author {
+            name
             latestNote {
               title
               __typename
             }
 
-            name
             __typename
           }
 
-          title
           __typename
         }
 
-        name
         __typename
       }
     GRAPHQL

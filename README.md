@@ -2,6 +2,10 @@
 
 GraphQL::Autotest tests your GraphQL API with auto-generated queries.
 
+## Requirements
+
+GraphQL::Autotest only supports Ruby 2.5 or higher
+
 ## Installation
 
 Add this line to your application's Gemfile:

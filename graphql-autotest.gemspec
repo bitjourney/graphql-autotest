@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{Test GraphQL queries automatically}
   spec.description   = %q{Test GraphQL queries automatically}
   spec.homepage      = "https://github.com/bitjourney/graphql-autotest"
-  spec.required_ruby_version = Gem::Requirement.new(">= 2.3.0")
+  spec.required_ruby_version = Gem::Requirement.new(">= 2.5.0")
   spec.license       = 'MIT'
 
   spec.metadata["homepage_uri"] = spec.homepage

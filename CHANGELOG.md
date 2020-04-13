@@ -2,9 +2,11 @@
 
 ## master (unreleased)
 
+## 0.2.1 (2020-04-13)
+
 * [#10](https://github.com/bitjourney/graphql-autotest/pull/10): Make `logger` argument of `GraphQL::Autotest::Runner` optional.
 
-## 0.2.0
+## 0.2.0 (2020-04-10)
 
 * [#8](https://github.com/bitjourney/graphql-autotest/pull/8): `GraphQL::Autotest::Runner` receives `logger` keyword argument.
 

@@ -322,6 +322,37 @@ class QueryGeneratorTest < Minitest::Test
     GRAPHQL2
   end
 
+  class SubFieldArgumentSchema < GraphQL::Schema
+    class ItemType < GraphQL::Schema::Object
+      field :title, String, null: false do
+        argument :lang, String
+      end
+    end
+
+    class QueryType < GraphQL::Schema::Object
+      field :item, ItemType, null: true
+    end
+
+    query QueryType
+  end
+
+  def test_sub_field_argument_schema
+    fetcher = GraphQL::Autotest::ArgumentsFetcher.combine(
+      GraphQL::Autotest::ArgumentsFetcher::DEFAULT,
+      -> (field, **) { field.arguments.any? { |arg| arg.name == 'lang' } && { lang: %("ja")} }
+    )
+    fields = generate(
+      schema: SubFieldArgumentSchema,
+      arguments_fetcher: fetcher,
+    )
+    assert_query [<<~GRAPHQL, '__typename'], fields
+      item {
+        title(lang: "ja")
+        __typename
+      }
+    GRAPHQL
+  end
+
   private def generate(schema:, **kw)
     GraphQL::Autotest::QueryGenerator.generate(document: schema.to_document, **kw)
   end

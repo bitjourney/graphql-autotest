@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+## 0.3.0 (2023-07-14)
+
 * [#15](https://github.com/bitjourney/graphql-autotest/pull/15): Migrating from Travis CI to GitHub Actions. (by @shimbaco)
 * [#14](https://github.com/bitjourney/graphql-autotest/pull/14): Add support for field arguments. (by @takeyoda)
 

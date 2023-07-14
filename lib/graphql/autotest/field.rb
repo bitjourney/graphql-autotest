@@ -16,13 +16,17 @@ module GraphQL
       end
 
       private def _to_query
-        return name unless children
-
-        <<~GRAPHQL
-          #{name}#{arguments_to_query} {
-          #{indent(children_to_query, 2)}
-          }
-        GRAPHQL
+        if children
+          <<~GRAPHQL
+            #{name}#{arguments_to_query} {
+            #{indent(children_to_query, 2)}
+            }
+          GRAPHQL
+        elsif arguments && arguments.size > 0
+          "#{name}#{arguments_to_query}"
+        else
+          name
+        end
       end
 
       private def children_to_query

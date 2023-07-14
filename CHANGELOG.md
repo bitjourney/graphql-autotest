@@ -2,6 +2,8 @@
 
 ## master (unreleased)
 
+* [#14](https://github.com/bitjourney/graphql-autotest/pull/14): Add support for field arguments. (by @takeyoda)
+
 ## 0.2.1 (2020-04-13)
 
 * [#10](https://github.com/bitjourney/graphql-autotest/pull/10): Make `logger` argument of `GraphQL::Autotest::Runner` optional.

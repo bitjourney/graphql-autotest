@@ -353,6 +353,30 @@ class QueryGeneratorTest < Minitest::Test
     GRAPHQL
   end
 
+  def test_extended_type_schema
+    schema = <<~GRAPHQL
+      type Item {
+        title: String!
+      }
+      extend type Item {
+        price: Int!
+      }
+      type Query {
+        item: Item!
+      }
+    GRAPHQL
+    document = GraphQL::parse(schema)
+    fields = GraphQL::Autotest::QueryGenerator.generate(document: document)
+
+    assert_query [<<~GRAPHQL, '__typename'], fields
+      item {
+        price
+        title
+        __typename
+      }
+    GRAPHQL
+  end
+
   private def generate(schema:, **kw)
     GraphQL::Autotest::QueryGenerator.generate(document: schema.to_document, **kw)
   end

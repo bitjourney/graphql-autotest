@@ -2,6 +2,9 @@
 
 ## master (unreleased)
 
+* [#19](https://github.com/bitjourney/graphql-autotest/pull/19): Drop ruby version 2.5, 2.6, 2.7. (by @kuroponzu)
+* [#18](https://github.com/bitjourney/graphql-autotest/pull/18): Support Interface. (by @hanachin)
+
 ## 0.3.0 (2023-07-14)
 
 * [#15](https://github.com/bitjourney/graphql-autotest/pull/15): Migrating from Travis CI to GitHub Actions. (by @shimbaco)

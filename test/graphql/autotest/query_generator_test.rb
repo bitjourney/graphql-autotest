@@ -353,6 +353,91 @@ class QueryGeneratorTest < Minitest::Test
     GRAPHQL
   end
 
+
+  class InterfaceTypeSchema < GraphQL::Schema
+    module CustomerType
+      include GraphQL::Schema::Interface
+
+      field :name, String, null: false
+    end
+
+    class IndivisualType < GraphQL::Schema::Object
+      implements CustomerType
+    end
+
+    class CompanyType < GraphQL::Schema::Object
+      implements CustomerType
+    end
+
+    class IndivisualType
+      field :company, CompanyType, null: false
+    end
+
+    class CompanyType
+      field :employees, [IndivisualType], null: false
+    end
+
+    class QueryType < GraphQL::Schema::Object
+      field :customers, [CustomerType], null: true
+    end
+
+    module CustomerType
+      orphan_types IndivisualType, CompanyType
+    end
+
+    query QueryType
+  end
+
+  def test_interface_type_schema
+    fields = generate(schema: InterfaceTypeSchema)
+    assert_query [<<~GRAPHQL, '__typename'], fields
+      customers {
+        name
+        ... on Company {
+          name
+          employees {
+            name
+            company {
+              name
+              employees {
+                name
+                __typename
+              }
+
+              __typename
+            }
+
+            __typename
+          }
+
+          __typename
+        }
+
+        ... on Indivisual {
+          name
+          company {
+            name
+            employees {
+              name
+              company {
+                name
+                __typename
+              }
+
+              __typename
+            }
+
+            __typename
+          }
+
+          __typename
+        }
+
+        __typename
+      }
+    GRAPHQL
+  end
+
   private def generate(schema:, **kw)
     GraphQL::Autotest::QueryGenerator.generate(document: schema.to_document, **kw)
   end

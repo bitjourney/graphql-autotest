@@ -57,6 +57,15 @@ module GraphQL
               Field.new(name: "... on #{t.name}", children: children)
             end
             Field.new(name: f.name, children: possible_types + [Field::TYPE_NAME], arguments: arguments)
+          when GraphQL::Language::Nodes::InterfaceTypeDefinition
+            implementations = document.definitions.map do |td|
+              if td.respond_to?(:interfaces) && td.interfaces.any? { |i| i.name == field_type_def.name }
+                children = testable_fields(td, called_fields: called_fields.dup, depth: depth + 1, ancestors: [f, *ancestors])
+                Field.new(name: "... on #{td.name}", children: children)
+              end
+            end.compact
+            children = testable_fields(field_type_def, called_fields: called_fields.dup, depth: depth + 1, ancestors: [f, *ancestors])
+            Field.new(name: f.name, children: children + implementations, arguments: arguments)
           else
             children = testable_fields(field_type_def, called_fields: called_fields.dup, depth: depth + 1, ancestors: [f, *ancestors])
 

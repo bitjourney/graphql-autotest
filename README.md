@@ -4,7 +4,7 @@ GraphQL::Autotest tests your GraphQL API with auto-generated queries.
 
 ## Requirements
 
-GraphQL::Autotest only supports Ruby 2.5 or higher
+GraphQL::Autotest only supports Ruby 3.0 or higher
 
 ## Installation
 
@@ -133,4 +133,3 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/bitjourney/graphql-autotest.
-

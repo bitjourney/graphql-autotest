@@ -285,6 +285,10 @@ class QueryGeneratorTest < Minitest::Test
       field :users_with_required_first, [UserType], null: true do
         argument :first, Integer, required: true
       end
+
+      field :users_with_string_field, [UserType], null: true do
+        argument :string_field, String, required: true
+      end
     end
 
     query QueryType
@@ -322,6 +326,28 @@ class QueryGeneratorTest < Minitest::Test
     GRAPHQL2
   end
 
+  def test_arguments_schema3
+    fetcher = GraphQL::Autotest::ArgumentsFetcher.combine(
+      GraphQL::Autotest::ArgumentsFetcher::DEFAULT,
+      -> (field, **) { field.arguments.map(&:name) == ['stringField'] && { stringField: 'string field' } }
+    )
+    fields = generate(
+      schema: ArgumentsSchema,
+      arguments_fetcher: fetcher,
+    )
+    assert_query [<<~GRAPHQL, <<~GRAPHQL2, '__typename'], fields
+      usersWithOptionalFirst {
+        name
+        __typename
+      }
+    GRAPHQL
+      usersWithStringField(stringField: "string field") {
+        name
+        __typename
+      }
+    GRAPHQL2
+  end
+
   class SubFieldArgumentSchema < GraphQL::Schema
     class ItemType < GraphQL::Schema::Object
       field :title, String, null: false do
@@ -339,7 +365,7 @@ class QueryGeneratorTest < Minitest::Test
   def test_sub_field_argument_schema
     fetcher = GraphQL::Autotest::ArgumentsFetcher.combine(
       GraphQL::Autotest::ArgumentsFetcher::DEFAULT,
-      -> (field, **) { field.arguments.any? { |arg| arg.name == 'lang' } && { lang: %("ja")} }
+      -> (field, **) { field.arguments.any? { |arg| arg.name == 'lang' } && { lang: "ja"} }
     )
     fields = generate(
       schema: SubFieldArgumentSchema,

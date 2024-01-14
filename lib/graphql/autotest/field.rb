@@ -40,7 +40,7 @@ module GraphQL
         return if arguments.empty?
 
         inner = arguments.map do |k, v|
-          "#{k}: #{v}"
+          v.is_a?(String) ? "#{k}: \"#{v}\"" : "#{k}: #{v}"
         end.join(', ')
         "(#{inner})"
       end
